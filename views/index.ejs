@@ -13,10 +13,7 @@
         #messages li:nth-child(odd) { background: #eee; }
     </style>
     <script src="../../socket.io/socket.io.js"></script>
-    <script
-  src="http://code.jquery.com/jquery-3.4.1.min.js"
-  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-  crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   </head>
   <body>
     <span id="list"> </span>
@@ -25,7 +22,7 @@
       <input id="txt" autocomplete="off" autofocus="on" oninput="isTyping()" placeholder="type your message here..." /><button>Send</button>
     </form>
     <script>
-            var socket = io.connect('https://chat-easy.herokuapp.com/40822');
+            var socket = io.connect('http://localhost:3000');
             // submit text message without reload/refresh the page
             $('form').submit(function(e){
                 e.preventDefault(); // prevents page reloading
