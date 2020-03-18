@@ -13,9 +13,9 @@
         #messages li { padding: 5px 10px; background: #eee; }
         .header { background: black; text-align: right; position: fixed; top: 0;}
         #userOnline {color: white; position: fixed; color: red;}
-        #userOnline li {margin-top: 10%; margin-left: 86%;}
+        #userOnline li {margin-top: 10%; margin-left: 100%;}
         #userOnlineRoom {color: white; list-style-type: none; position: fixed; color: red;}
-        #userOnlineRoom li {margin-top: 10%; margin-left: 86%;}
+        #userOnlineRoom li {margin-top: 10%; margin-left: 100%;}
     </style>
     <script src="../../socket.io/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -39,7 +39,7 @@
             let flagList = false;
             let flagListRoom = false;
             let room = "";
-            let socket = io.connect('https://chat-easy.herokuapp.com/');
+            let socket = io.connect('http://localhost:3000');
             
 
             // submit text message without reload/refresh the page
