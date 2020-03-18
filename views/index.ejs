@@ -2,44 +2,189 @@
 <html>
   <head>
     <title>EasyChat</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font: 30px Helvetica, Arial; }
-        form { background: #fff; padding: 3px; position: fixed; bottom: 0; width: 100%; border-color: #000; border-top-style: solid; border-top-width: 1px;}
-        form input { border-style: solid; border-width: 1px; padding: 10px; width: 50%; margin-right: .5%; margin-left: 10%; }
-        form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; margin-left: 2%; }
-        #messages { list-style-type: none; margin: 0; padding: 0; }
-        #messages li { padding: 5px 10px; }
-        #messages li:nth-child(odd) { background: #eee; }
+        body { font: 30px Helvetica, Arial; background: black; }
+        form { background-image: linear-gradient(grey, white);  position: fixed; bottom: 0; width: 100%; text-align: center;}
+        form input { border-style: solid; border-width: 1px; padding: 10px; width: 60%; }
+        form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+        #messages { list-style-type: none; margin: 0; padding: 0; margin-left: 2%; margin-bottom: 5%; }
+        #messages li { padding: 5px 10px; background: #eee; }
+        .header { background: black; text-align: right; position: fixed; top: 0;}
+        #userOnline {color: white;}
+        #userOnline li {margin-top: 3%; margin-left: 2%;}
+        #userOnlineRoom {color: white; list-style-type: none;}
+        #userOnlineRoom li {margin-top: 3%; margin-left: 2%;}
     </style>
     <script src="../../socket.io/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   </head>
-  <body>
-    <ul id="messages"></ul>
-    <form action="/" method="POST" id="chatForm">
-      <input id="txt" autocomplete="off" autofocus="on" oninput="isTyping()" placeholder="type your message here..." /><button>Send</button>
-    </form>
+  <body>  
+    <div class="header">
+      <button type="button" onclick="showList()" id="userOn"  class="btn btn-primary">Users Online</button>
+      <button type="button" onclick="showListRoom()" id="userOnRoom" style="display: none;" class="btn btn-primary">Number of Users in Room</button>
+      <button type="button" onclick="roomSetting()" id="roomSet"  class="btn btn-primary">Create Room</button>
+      <button type="button" onclick="roomJoin()" id="roomJoin"  class="btn btn-primary">Room Join</button>
+      <button type="button" onclick="roomLeave()" id="roomLeave" style="display: none;" class="btn btn-danger">Leave Room</button>     
+    </div>   
+    <ul id="userOnline"></ul>
+    <ul id="userOnlineRoom"></ul>
+      <ul id="list" style="color: white;"></ul>
+      <ul id="messages"></ul>      
+        <form action="/" method="POST" id="chatForm">
+          <input id="txt" autocomplete="off" autofocus="on" oninput="isTyping()" placeholder="type your message here..." /><button type="button" style="padding: 10px; margin-left: 2%; " class="btn btn-primary">Send</button>
+        </form>  
     <script>
-            var socket = io.connect('https://chat-easy.herokuapp.com/');
+            let flagList = false;
+            let flagListRoom = false;
+            let room = "";
+            let socket = io.connect('http://localhost:3000');
+            
+
             // submit text message without reload/refresh the page
             $('form').submit(function(e){
                 e.preventDefault(); // prevents page reloading
-                socket.emit('chat_message', $('#txt').val());
+                socket.emit('chat_message', $('#txt').val(), room);
                 $('#txt').val('');
                 return false;
             });
             // append the chat text message
             socket.on('chat_message', function(msg){
-                $('#messages').append($('<li>').html(msg));
+                $('#messages').append($('<li style="width: fit-content; margin-top: 1%; border-radius: 10px 20px 20px 1px;">').html(msg));
+                  $(document).scrollTop($(document).height());                  
             });
             // append text if someone is online
             socket.on('is_online', function(username) {
-                $('#messages').append($('<li>').html(username));
+                $('#messages').append($('<li style="width: fit-content; margin-top: 2%; border-radius: 1px 1px 1px 1px;margin-left: 40%;">').html(username));
+                $(document).scrollTop($(document).height());
+            });
+
+            socket.on('list_user_onconnect', function(nmb) {
+              $('#messages').append($('<li style="width: fit-content; border-radius: 0px 1px 1px 1px;margin-left: 40%; color: white; background: black; font-size: 20px;">').html(nmb));
+            });
+            socket.on('list_user_ondisconnect', function(nmb) {
+              $('#messages').append($('<li style="width: fit-content; border-radius: 0px 1px 1px 1px;margin-left: 40%; color: white; background: black; font-size: 20px;">').html(nmb));
+            });
+            socket.on('show_notification', function (id) {
+              if(username!==id){
+                notifyMe(id);
+              }
+            });
+
+            socket.on('user_array', function (arr, user) {
+              if(user===username) {
+                let userList = document.getElementById("userOnline");
+                for(let i=0;i<arr.length;i++){
+                      let item = arr[i];
+                      let elem = document.createElement("li");
+                      elem.value=item
+                      elem.innerHTML=item
+                      userList.appendChild(elem);
+                  }
+              }
+               
+            });
+
+            socket.on('user_array_room', function (numb, user) {
+              if(username===user) {
+                let userList = document.getElementById("userOnlineRoom");
+               let elem = document.createElement("li");
+                    elem.value=numb
+                    elem.innerHTML=numb
+                    userList.appendChild(elem);
+              }
+              
             });
             // ask username
-            var username = prompt('Please tell me your name');
+            let username = prompt('Please tell me your name');
             socket.emit('username', username);
+            socket.emit('log_in');
+
+            function showList() {
+              if(!flagList) {
+                socket.emit('user_list', username);
+              }
+              else {
+                $("#userOnline").empty();
+              }
+              flagList = !flagList;
+            }
+
+            function showListRoom() {
+              if(!flagListRoom) {
+                socket.emit('user_list_room', room, username);
+              }
+              else {
+                $("#userOnlineRoom").empty();
+              }
+              flagListRoom = !flagListRoom;
+            }
+            
+
+
+            function notifyMe(id) {
+              // Let's check if the browser supports notifications
+              if (!("Notification" in window)) {
+                alert("This browser does not support desktop notification");
+              }
+
+              // Let's check whether notification permissions have already been granted
+              else if (Notification.permission === "granted") {
+                // If it's okay let's create a notification
+                let notification = new Notification(id + " write something");
+              }
+
+              // Otherwise, we need to ask the user for permission
+              else if (Notification.permission == "denied" || Notification.permission == "default") {
+                Notification.requestPermission().then(function (permission) {
+                  // If the user accepts, let's create a notification
+                  if (permission === "granted") {
+                    let notification = new Notification(id + " write something");
+                  }
+                });
+              }
+          }
+            
+          function roomSetting() {
+             room = prompt('Tell me the room name');
+            socket.emit('create', room)
+            $("#userOnline").empty();
+            $('#messages').append($('<li style="width: fit-content; margin-top: 2%; border-radius: 1px 1px 1px 1px;margin-left: 40%;">').html("Welcome to " + room + " 🤫"));
+            $("#roomSet").css('display', 'none');
+            $("#roomJoin").css('display', 'none');
+            $("#userOn").css('display', 'none');
+            $("#roomLeave").css('display', 'inline');
+            $("#userOnRoom").css('display', 'inline');
+            }
+
+          function roomJoin() {
+            room = prompt('Tell me the name of the room you want to join')
+            socket.emit('join_room', room)
+            $("#userOnline").empty();
+            $('#messages').append($('<li style="width: fit-content; margin-top: 2%; border-radius: 1px 1px 1px 1px;margin-left: 40%;">').html("Welcome to " + room + " 🤫"));
+            $("#roomSet").css('display', 'none');
+            $("#roomJoin").css('display', 'none');
+            $("#userOn").css('display', 'none');
+            $("#roomLeave").css('display', 'inline');
+            $("#userOnRoom").css('display', 'inline');
+            }
+
+          function roomLeave() {
+            socket.emit('leave_room', room)
+            room = "";
+            $("#roomSet").css('display', 'inline');
+            $("#roomJoin").css('display', 'inline');
+            $("#userOn").css('display', 'inline');
+            $("#roomLeave").css('display', 'none');
+            $("#userOnRoom").css('display', 'none');
+            $('#messages').append($('<li style="width: fit-content; margin-top: 2%; border-radius: 1px 1px 1px 1px;margin-left: 40%;">').html("Return to public "  + " 👀"));
+            socket.emit('username', username);
+            socket.emit('log_in');
+          }
+
+          
     </script>
   </body>
 </html>
+
