@@ -74,6 +74,6 @@ io.sockets.on('connection', function(socket) {
 
 });
 
-const server = http.listen(3000, function() {
+const server = http.listen(PORT, function() {
     console.log('listening on * ' + 3000);
 });
