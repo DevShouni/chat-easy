@@ -22,24 +22,25 @@
   </head>
   <body>  
     <div class="header">
-      <button type="button" onclick="showList()" id="userOn"  class="btn btn-primary">Users Online</button>
-      <button type="button" onclick="showListRoom()" id="userOnRoom" style="display: none;" class="btn btn-primary">Number of Users in Room</button>
-      <button type="button" onclick="roomSetting()" id="roomSet"  class="btn btn-primary">Create Room</button>
-      <button type="button" onclick="roomJoin()" id="roomJoin"  class="btn btn-primary">Room Join</button>
-      <button type="button" onclick="roomLeave()" id="roomLeave" style="display: none;" class="btn btn-danger">Leave Room</button>     
+      <button type="button" onclick="showList()" id="userOn" style="font-size:  1vw"   class="btn btn-primary">Users Online</button>
+      <button type="button" onclick="showListRoom()" id="userOnRoom" style="display: none;font-size:2vw" class="btn btn-primary">Number of Users in Room</button>
+      <button type="button" onclick="roomSetting()" id="roomSet" style="font-size:  1vw"  class="btn btn-primary">Create Room</button>
+      <button type="button" onclick="roomJoin()" id="roomJoin" style="font-size:  1vw"  class="btn btn-primary">Room Join</button>
+      <button type="button" onclick="roomLeave()" id="roomLeave" style="display: none;font-size:1vw" class="btn btn-danger">Leave Room</button>     
     </div>   
     <ul id="userOnline"></ul>
     <ul id="userOnlineRoom"></ul>
       <ul id="list" style="color: white;"></ul>
       <ul id="messages"></ul>      
         <form action="/" method="POST" id="chatForm">
-          <input id="txt" autocomplete="off" autofocus="on" oninput="isTyping()" placeholder="type your message here..." /><button type="button" style="padding: 10px; margin-left: 2%; " class="btn btn-primary">Send</button>
+          <input id="txt" autocomplete="off" autofocus="on" oninput="isTyping()" placeholder="type your message here..." /><button type="button" style="padding: 10px; margin-left: 2%; font-size:  1vw " class="btn btn-primary">Send</button>
         </form>  
     <script>
             let flagList = false;
             let flagListRoom = false;
             let room = "";
             let socket = io.connect('https://chat-easy.herokuapp.com/');
+
             
 
             // submit text message without reload/refresh the page
